@@ -1,16 +1,19 @@
-# flutter_application_test
+# 🌿 Mindful Journey - A Personal Mental Wellness App
 
-A new Flutter project.
+Welcome to **Mindful Journey**, a Flutter-based mobile application designed to promote self-awareness, mental wellness, and personal growth. This app offers a calm, supportive space where users can reflect, track their mental health journey, and access helpful resources.
 
-## Getting Started
+## 🧘‍♂️ Features
 
-This project is a starting point for a Flutter application.
+- **Daily Reflections**: A journaling feature for documenting thoughts and emotions.
+- **Mood Tracker**: Visual mood tracking to observe patterns and emotional triggers.
+- **Guided Meditations**: A collection of audio guides to help reduce stress and promote mindfulness.
+- **Resource Library**: Curated articles, videos, and exercises focused on self-awareness and mental health.
+- **Personalized Dashboard**: User-centric interface with wellness tips, reminders, and progress tracking.
 
-A few resources to get you started if this is your first Flutter project:
+## 🌈 Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Framework**: Flutter (Dart)
+- **State Management**: Provider / Riverpod / Bloc (whichever you used)
+- **Backend**: Firebase Firestore for real-time data handling and authentication
+- **Storage**: Firebase Cloud Storage for storing user-generated content
+- **Deployment**: Google Play Store / Apple App Store (if applicable)
