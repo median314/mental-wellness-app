@@ -327,13 +327,23 @@ class _SettingsPageState extends State<SettingsPage> {
                               spacing: 10,
                               children: [
                                 Icon(Icons.logout_outlined),
-                                Text(
-                                  "Logout", 
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500
-                                  ),
-                                ),
+                                ValueListenableBuilder(
+                                  valueListenable: isLogin, 
+                                  builder: (context, loginStatus, child) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        isLogin.value = false;
+                                      },
+                                      child: Text(
+                                        "Logout", 
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
                               ],
                             ),
                             Icon(
