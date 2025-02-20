@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_test/styles/styles.dart';
+import 'package:flutter_application_test/views/pages/assessment/mood/MoodReview.dart';
+import 'package:flutter_application_test/views/pages/home_page.dart';
 
 class Moodselection extends StatefulWidget {
   const Moodselection({super.key});
@@ -8,7 +10,24 @@ class Moodselection extends StatefulWidget {
   State<Moodselection> createState() => _MoodselectionState();
 }
 
+class MoodCollection {
+  int id;
+  String name;
+  String emoji;
+
+  MoodCollection({ required this.id, required this.name, required this.emoji });
+}
+
 class _MoodselectionState extends State<Moodselection> {
+  
+  List<MoodCollection> moods = [
+    MoodCollection(id: 1, name: "Happy", emoji: "Happy Emoji"),
+    MoodCollection(id: 2, name: "Normal", emoji: "Normal Emoji"),
+    MoodCollection(id: 3, name: "Sad", emoji: "Sad Emoji"),
+    MoodCollection(id: 4, name: "Angry", emoji: "Angry Emoji"),
+    MoodCollection(id: 5, name: "Overwhelmed", emoji: "Overwhelmed Emoji"),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +61,14 @@ class _MoodselectionState extends State<Moodselection> {
                       )
                     ),
                     onPressed: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return Moodreview();
+                          }
+                        )
+                      );
                       print("pressed");
                     },
                     child: Text(

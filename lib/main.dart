@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       valueListenable: isDarkMode, 
       builder: (context, value, child) {
         return MaterialApp(
+          initialRoute: '/',
           debugShowCheckedModeBanner: false,
           debugShowMaterialGrid: false,
           theme: ThemeData(
