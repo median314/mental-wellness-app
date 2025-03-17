@@ -9,7 +9,7 @@ abstract class ThemeText {
 
   static const TextStyle progressBody = TextStyle(
     color: Colors.black,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: FontWeight.w500
   );
 }
@@ -35,4 +35,10 @@ abstract class GradientContainer {
     end: Alignment.topCenter,
     stops: [0.3, 1]
   );
+}
+
+abstract class TextColor {
+  static const Color primary = Color(0xff8B4512);
+  static const Color secondary = Color(0xff364153);
+  // static const Color primary = Color(0xff8B4512);
 }

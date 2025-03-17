@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_test/styles/styles.dart';
-import 'package:flutter_application_test/views/pages/assessment/habits/HabitsRunning.dart';
+import 'package:flutter_application_test/views/pages/assessment/habits/habits_running_page.dart';
 
 class Habitreview extends StatefulWidget {
   const Habitreview({super.key});
@@ -153,7 +153,7 @@ class _HabitreviewState extends State<Habitreview> {
                         'Aktifitas hari ini',
                         style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xff8B4512)),
                       ),
-                      Container(
+                      SizedBox(
                         height: 250,
                         child: SingleChildScrollView(
                           child: Column(
@@ -195,7 +195,7 @@ class _HabitreviewState extends State<Habitreview> {
                                                       onTap: (){
                                                         Navigator.push(
                                                           context, 
-                                                          MaterialPageRoute(builder: (context) => Habitsrunning())
+                                                          MaterialPageRoute(builder: (context) => Habitsrunning(activityTitle: 'Hello',))
                                                         );
                                                       },
                                                       child: Text(

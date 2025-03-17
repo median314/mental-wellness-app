@@ -1,25 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_test/api/firebase_api.dart';
+import 'package:flutter_application_test/providers/user_providers.dart';
 import 'package:flutter_application_test/styles/styles.dart';
-import 'package:flutter_application_test/views/pages/assessment/habits/HabitReview.dart';
-import 'package:flutter_application_test/views/pages/assessment/mood/MoodSelection.dart';
+import 'package:flutter_application_test/views/pages/assessment/journals/journal_home_page.dart';
+import 'package:flutter_application_test/views/pages/assessment/mood/mood_selection_page.dart';
+import 'package:flutter_application_test/views/pages/letters/letters_home_page.dart';
 import 'package:flutter_application_test/views/pages/settings/settings_page.dart';
+import 'package:flutter_application_test/views/widgets/Home/daily_activity_widget.dart';
+import 'package:flutter_application_test/views/widgets/Home/daily_journal_home_widget.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({
+    super.key,
+  });
+
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
+  List<Map<String, dynamic>> data = [];
+
+  Map<String, dynamic> journalData = {};
+
+  late DateTime startTime;
+  late DateTime endTime;
+
+  Future<void> fetchData(uid) async {
+    // setState(() {
+    //   _isLoading = true;
+    // });
+
+    // final conditions = [
+    //   { "field": "uid", "operator": "==", "value": uid },
+    //   { "field": "createdAt", "operator": ">=", "value": startTime },
+    //   { "field": "createdAt", "operator": "<=", "value": endTime },
+    //   { "field": "type", "operator": "==", "value": "home" },
+    // ];
+
+    // final limit = 1;
+    
+    // try {
+    //   FirebaseApi firebaseApi = FirebaseApi();
+    //   data = await firebaseApi.getCollectionDataWithCondition("journals", conditions, limit, null);
+
+    //   print('This is the data: $data');
+    //   journalData = data[0];
+    // } catch (e) {
+    //   print("Failed fetch data");
+    //   return;
+    // }
+  }
+
+  Future<void> deleteData(collectionName, id) async {
+    FirebaseApi firebaseApi = FirebaseApi();
+
+    try {
+      await firebaseApi.deleteFirebaseDocument(collectionName, id);
+      
+      print("data deleted");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _initializeTime() {
+    DateTime now = DateTime.now();
+    startTime = DateTime(now.year, now.month, now.day);
+    endTime = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    _initializeTime();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userData = ref.read(userDataProvider);
+      if (userData.id.isNotEmpty) {
+        fetchData(userData.id);
+      } else {
+        ref.listenManual(userDataProvider, (previous, next) {
+          if (next.id.isNotEmpty) {
+            fetchData(next.id);
+          }
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-          width: double.infinity,
-          child: SingleChildScrollView(
+      final user = ref.watch(userDataProvider);
+
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 24),
+            width: double.infinity,
             child: Column(
               spacing: 5,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -32,8 +112,8 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.greenAccent,
                         shape: BoxShape.circle,
                       ),
-                      width: 55,
-                      height: 55,
+                      width: 50,
+                      height: 50,
                     ),
                     const SizedBox(width: 10), // Spacing between widgets
                     Expanded(
@@ -45,17 +125,19 @@ class _HomePageState extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Halo, Ayam Jago',
+                                'Halo, ${user.name ?? ''}',
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w600,
                                   fontSize: 16,
+                                  fontFamily: 'Poppins'
                                 ),
                               ),
                               Text(
                                 'Bagaimana kabarmu hari ini?',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 14,
+                                  fontSize: 12,
+                                  fontFamily: 'Nunito'
                                 ),
                               ),
                             ],
@@ -71,7 +153,7 @@ class _HomePageState extends State<HomePage> {
                                 )
                               );
                             },
-                            icon: Icon(Icons.settings_outlined, size: 30,)
+                            icon: Icon(Icons.settings_outlined, size: 25, color: Colors.grey.shade700)
                           )
                         ],
                       ),
@@ -106,11 +188,21 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Text(
                                 'Mood kamu hari ini',
-                                style: ThemeText.progressHeader,
+                                style: TextStyle(
+                                  color: TextColor.primary,
+                                  fontWeight: FontWeight.w600,
+                                  fontFamily: 'Poppins',
+                                  fontSize: 13
+                                ),
                               ),
+                              SizedBox(height: 3,),
                               Text(
                                 'Beri rating pada mood kamu hari ini',
-                                style: ThemeText.progressBody,
+                                style: TextStyle(
+                                  color: TextColor.secondary,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12
+                                ),
                               ),
                             ],
                           ),
@@ -120,262 +212,9 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    gradient: GradientContainer.containerColor,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Apa yang kamu rasakan hari ini?',
-                              style: ThemeText.progressHeader,
-                            ),
-                            const SizedBox(height: 10), // Spacing
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(
-                                  color: Colors.transparent
-                                )
-                              ),
-                              width: double.infinity,// Constrain width
-                              child: TextField(
-                                maxLines: null,
-                                keyboardType: TextInputType.multiline,
-                                decoration: InputDecoration(
-                                  hintText: "Hari ini aku...",
-                                  border: OutlineInputBorder(),
-                                  contentPadding: EdgeInsets.all(10.0),
-                                ),
-                                onChanged: (value) {
-                                  print(value);
-                                },
-                                onTapOutside: (e) {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xff8B4512),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)
-                                )
-                              ),
-                              onPressed: () {
-                                print('Simpen');
-                              }, 
-                              child: Text(
-                                'Simpan', 
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14
-                                ),
-                              )
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                DailyJournalHomeWidget(),
                 const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Aktivitas harianmu',
-                            style: TextStyle(
-                              color: Color(0xff8B4512),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context, 
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return Habitreview();
-                                  }
-                                )
-                              );
-                            },
-                            child: Text(
-                              'Lihat semua',
-                              style: TextStyle(
-                                color: Color(0xff8B4512),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        spacing: 15,
-                        children: [
-                          Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Image.asset("assets/images/bg_test.jpg", width: 75),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.max,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      spacing: 10,
-                                      children: [
-                                        Text(
-                                          'Morning Walk',
-                                          style: TextStyle(
-                                            color: Color(0xff8B4512),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        Text(
-                                          '30 Menit',
-                                          style: TextStyle(
-                                            fontSize: 12
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xffFFBE00),
-                                        borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      child: Text('Start', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Image.asset("assets/images/bg_test.jpg", width: 75),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.max,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      spacing: 10,
-                                      children: [
-                                        Text(
-                                          'Morning Walk',
-                                          style: TextStyle(
-                                            color: Color(0xff8B4512),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        Text(
-                                          '30 Menit',
-                                          style: TextStyle(
-                                            fontSize: 12
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xffFFBE00),
-                                        borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      child: Text('Done', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              Image.asset("assets/images/bg_test.jpg", width: 75),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.max,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      spacing: 10,
-                                      children: [
-                                        Text(
-                                          'Morning Walk',
-                                          style: TextStyle(
-                                            color: Color(0xff8B4512),
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold
-                                          ),
-                                        ),
-                                        Text(
-                                          '30 Menit',
-                                          style: TextStyle(
-                                            fontSize: 12
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                      decoration: BoxDecoration(
-                                        color: Color(0xffFFBE00),
-                                        borderRadius: BorderRadius.circular(10)
-                                      ),
-                                      child: Text('Done', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
+                DailyActivityWidget(),
                 SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
@@ -386,8 +225,13 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Jelajahi Program Baru',
-                        style: ThemeText.progressHeader
+                        'Jelajahi Program',
+                        style: TextStyle(
+                          color: TextColor.primary,
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600
+                        ),
                       ),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -395,26 +239,73 @@ class _HomePageState extends State<HomePage> {
                           mainAxisSize: MainAxisSize.min,
                           spacing: 15,
                           children: [
-                            Column(
-                              spacing: 8,
-                              children: [
-                                Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                Text("Gratitude", style: ThemeText.progressBody),
-                              ],
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return JournalHomePage();
+                                    }
+                                  )
+                                );
+                              },
+                              child: Column(
+                                spacing: 8,
+                                children: [
+                                  Image.asset("assets/images/bg_test.jpg", width: 150,),
+                                  Text(
+                                    "Journaling", 
+                                    style: TextStyle(
+                                      color: TextColor.secondary,
+                                      fontSize: 13,
+                                      fontFamily: "Nunito",
+                                      fontWeight: FontWeight.w800
+                                    )
+                                  ),
+                                ],
+                              ),
                             ),
                             Column(
                               spacing: 8,
                               children: [
                                 Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                Text("Gratitude", style: ThemeText.progressBody),
+                                Text(
+                                  "Gratitude", 
+                                  style: TextStyle(
+                                    color: TextColor.secondary,
+                                    fontSize: 13,
+                                    fontFamily: "Nunito",
+                                    fontWeight: FontWeight.w800
+                                  )
+                                ),
                               ],
                             ),
-                            Column(
-                              spacing: 8,
-                              children: [
-                                Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                Text("Gratitude", style: ThemeText.progressBody),
-                              ],
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return LettersHomePage();
+                                    })
+                               );
+                              },
+                              child: Column(
+                                spacing: 8,
+                                children: [
+                                  Image.asset("assets/images/bg_test.jpg", width: 150,),
+                                  Text(
+                                    "Letters", 
+                                    style: TextStyle(
+                                      color: TextColor.secondary,
+                                      fontSize: 13,
+                                      fontFamily: "Nunito",
+                                      fontWeight: FontWeight.w800
+                                    )
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),

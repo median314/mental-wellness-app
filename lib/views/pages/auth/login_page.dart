@@ -1,26 +1,71 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_test/api/firebase_api.dart';
 import 'package:flutter_application_test/data/notifiers.dart';
+import 'package:flutter_application_test/providers/user_providers.dart';
 import 'package:flutter_application_test/views/pages/auth/signup_page.dart';
+import 'package:flutter_application_test/views/pages/home_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
 
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController controllerEmail = TextEditingController();
-  TextEditingController controllerPassword = TextEditingController();
+class _LoginPageState extends ConsumerState<LoginPage> {
+  final _emailInput = TextEditingController();
+  final _passwordInput = TextEditingController();
 
-  String confirmedEmail = "app@test.com";
-  String confirmedPassword = "123";
+  bool showErrorText = false;
+  bool isLoading = false;
 
-  Map<String, String> loginData = {
-    "email": '',
-    "password": ''
-  };
+  Map<String, dynamic> data = {};
+
+  Future<void> login() async {
+    final email = _emailInput.text;
+    final password = _passwordInput.text;
+
+    setState(() {
+      showErrorText = false;
+      isLoading = true;
+    });
+
+    try {
+      FirebaseApi firebaseApi = FirebaseApi();
+
+      UserCredential? userCredential = await firebaseApi.loginUser(email, password);
+      
+      if(userCredential != null) {
+        final userId = userCredential.user?.uid;
+
+        print("data user nih bos: ${userCredential.user}");
+
+        if(userId != null) {
+          await ref.read(userNotifierProvider.notifier).loadUserData(userId);
+        }
+        
+        print("Login Success");
+        Navigator.pushReplacement(
+          context, 
+          MaterialPageRoute(builder: (context) => HomePage())
+        );
+      } else {
+        setState(() {
+          showErrorText = true;
+        });
+        print("Login Failed");
+      }
+    } catch (e) {
+      print("Error occured: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +103,12 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ),
                   TextField(
+                    controller: _emailInput,
                     decoration: InputDecoration(
                       hintText: "Your Email",
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.all(10.0)
                     ),
-                    onChanged: (value) {
-                      loginData["email"] = value;
-                    },
                     onTapOutside: (e) {
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
@@ -75,20 +118,26 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   ),
                   TextField(
+                    controller: _passwordInput,
                     decoration: InputDecoration(
                       hintText: "Your Password",
                       border: OutlineInputBorder(),
                       contentPadding: EdgeInsets.all(10.0)
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        loginData["password"] = value;
-                      });
-                    },
                     onTapOutside: (e) {
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
                   ),
+                  showErrorText ? Center(
+                    child: SizedBox(
+                      width: 250,
+                      child: Text(
+                        "Gagal Login. Pastikan email / password yang dimasukkan sudah benar", 
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w500, fontSize: 11),
+                      )
+                    ),
+                  ) : SizedBox(),
                   ValueListenableBuilder(
                     valueListenable: isLogin,
                     builder: (context, loginStatus, child) {
@@ -107,9 +156,13 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           onPressed: (){
-                            onLoginPressed(loginStatus);
+                            login();
+                            // onLoginPressed(loginStatus);
                           }, 
-                          child: Text("Login"))
+                          child: Text(
+                            isLoading ? "Loading..." : "Login"
+                          )
+                        )
                       );
                     } 
                   ),

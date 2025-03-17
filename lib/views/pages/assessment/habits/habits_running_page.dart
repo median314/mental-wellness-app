@@ -1,30 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_test/styles/styles.dart';
-import 'package:flutter_application_test/views/pages/assessment/habits/HabitReview.dart';
-import 'package:flutter_application_test/views/pages/home_page.dart';
 
 class Habitsrunning extends StatefulWidget {
-  const Habitsrunning({super.key});
+  final String activityTitle;
+
+  const Habitsrunning({
+    super.key,
+    required this.activityTitle
+  });
 
   @override
   State<Habitsrunning> createState() => _HabitsrunningState();
 }
 
 class _HabitsrunningState extends State<Habitsrunning> {
+  late final _title;
+  bool isRunning  = false;
+
+  void toggleTimer() {
+    setState(() {
+      isRunning = !isRunning;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _title = widget.activityTitle;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        title: Text(
+          _title,
+          style: TextStyle(
+            color: TextColor.primary,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins'
+          ),
+        ),
+      ),
       body: Column(
         children: [
           Stack(  // Changed from Container to Stack
             children: [
-              Container(
+              SizedBox(
                 height: MediaQuery.sizeOf(context).height/1.5,
                 child: Column(
                   children: [
                     Container(
                       padding: EdgeInsets.only(top: 65, left: 20, right: 20, bottom: 20),
-                      height: MediaQuery.sizeOf(context).height/2.5,
+                      height: MediaQuery.sizeOf(context).height/2,
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
@@ -39,40 +70,17 @@ class _HabitsrunningState extends State<Habitsrunning> {
                       ),
                       child: Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.max,
-                            children: [
-                              SizedBox(
-                                width: MediaQuery.sizeOf(context).width/8,
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.pop(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return Habitreview();
-                                      })
-                                    );
-                                  },
-                                  child: Icon(Icons.arrow_back_ios_new_rounded)
-                                )
-                              ),
-                            ],
-                          ),
-                          Center(
-                            child: Text(
-                              'Lari lari ke puncak gunung', 
-                              textAlign: TextAlign.center, 
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                            )
-                          ),
-                          SizedBox(height: 30,),
+                          SizedBox(height: 50,),
                           Center(
                             child: Text(
                               '20:01', 
                               textAlign: TextAlign.center, 
-                              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Color(0xff8B4512)),
+                              style: TextStyle(
+                                fontSize: 50, 
+                                fontWeight: FontWeight.bold, 
+                                color: Color(0xff8B4512),
+                                fontFamily: 'Nunito'
+                              ),
                             )
                           ),
                           SizedBox(height: 20,),
@@ -80,7 +88,12 @@ class _HabitsrunningState extends State<Habitsrunning> {
                             child: Text(
                               'Semangat!!', 
                               textAlign: TextAlign.center, 
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: TextColor.primary,
+                                fontSize: 18, 
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Nunito'
+                              ),
                             )
                           ),
                         ],
@@ -91,10 +104,10 @@ class _HabitsrunningState extends State<Habitsrunning> {
               ),
               Positioned(
                 top: MediaQuery.sizeOf(context).height/3 - 30,  // Adjust this value to control overlap
-                left: (MediaQuery.sizeOf(context).width - 250) / 2,  // Centers the image
+                left: (MediaQuery.sizeOf(context).width - 300) / 2,  // Centers the image
                 child: Image.asset(
-                  "assets/images/capy_login.png", 
-                  width: 250,
+                  "assets/images/capy_content.png", 
+                  width: 300,
                 )
               ),
             ],
@@ -107,17 +120,30 @@ class _HabitsrunningState extends State<Habitsrunning> {
               )
             ),
             onPressed: () {
-      
+              print("mulai");
+              toggleTimer();
             }, 
-            child: Text('Pause', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+            child: Text(
+              isRunning ? 'Pause':'Start', 
+              style: TextStyle(
+                color: Colors.white, 
+                fontWeight: FontWeight.bold
+              )
+            )
           ),
           SizedBox(height: 20,),
           Container(
-            padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+            padding: EdgeInsets.symmetric(vertical: 30, horizontal: 24),
+            width: MediaQuery.sizeOf(context).width,
             child: Text(
               '“ Don’t forget to drink water, if it makes you tired, feel free to break. “',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xff8B4512)),
+              style: TextStyle(
+                fontSize: 16, 
+                fontWeight: FontWeight.w600, 
+                color: Color(0xff8B4512),
+                fontFamily: 'Poppins'
+              ),
             ),
           )
         ],
