@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           debugShowMaterialGrid: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.orange, 
+                seedColor: Colors.amber, 
                 brightness: isDarkMode.value ? Brightness.dark : Brightness.light
             )
           ),

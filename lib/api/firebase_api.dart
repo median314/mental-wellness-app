@@ -42,7 +42,7 @@ class FirebaseApi {
       String collectionName, 
       List<Map<String, dynamic>> conditions, 
       int? limit,
-      Map<String, String>? sortBy,
+      Map<String, dynamic>? sortBy,
     ) async {
 
     Query collectionReference = _firestore.collection(collectionName);
@@ -89,7 +89,7 @@ class FirebaseApi {
       }
 
       if(sortBy != null) {
-        collectionReference = collectionReference.orderBy(sortBy);
+        collectionReference = collectionReference.orderBy(sortBy['field'], descending: sortBy['descending']);
       }
 
       QuerySnapshot result = await collectionReference.get();
@@ -108,6 +108,10 @@ class FirebaseApi {
       print('Error occured: $e');
       rethrow;
     }
+  }
+
+  Stream<DocumentSnapshot> getDocumentStream(String collection, String id) {
+    return _firestore.collection(collection).doc(id).snapshots();
   }
 
   //set data to firebase

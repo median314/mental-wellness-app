@@ -30,7 +30,14 @@ class _LetterWrittingPageState extends ConsumerState<LetterWrittingPage> {
       "isPublic": true,
       'content': _messageInput.text,
       "type": selectedType,
-      "uid": uid
+      "uid": uid,
+      "reactions": {
+        "inspiring": 0,
+        "fight": 0,
+        "love": 0,
+        "hug": 0
+      },
+      "userReactions": {}
     };
 
     try {

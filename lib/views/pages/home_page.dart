@@ -4,6 +4,7 @@ import 'package:flutter_application_test/providers/user_providers.dart';
 import 'package:flutter_application_test/styles/styles.dart';
 import 'package:flutter_application_test/views/pages/assessment/journals/journal_home_page.dart';
 import 'package:flutter_application_test/views/pages/assessment/mood/mood_selection_page.dart';
+import 'package:flutter_application_test/views/pages/gratitudes/gratitude_home_page.dart';
 import 'package:flutter_application_test/views/pages/letters/letters_home_page.dart';
 import 'package:flutter_application_test/views/pages/settings/settings_page.dart';
 import 'package:flutter_application_test/views/widgets/Home/daily_activity_widget.dart';
@@ -211,8 +212,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                DailyJournalHomeWidget(),
+                // const SizedBox(height: 10),
+                // DailyJournalHomeWidget(),
                 const SizedBox(height: 10),
                 DailyActivityWidget(),
                 SizedBox(height: 10),
@@ -266,20 +267,32 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 ],
                               ),
                             ),
-                            Column(
-                              spacing: 8,
-                              children: [
-                                Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                Text(
-                                  "Gratitude", 
-                                  style: TextStyle(
-                                    color: TextColor.secondary,
-                                    fontSize: 13,
-                                    fontFamily: "Nunito",
-                                    fontWeight: FontWeight.w800
+                            InkWell(
+                              onTap: (){
+                                Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return GratitudeHomePage();
+                                    }
                                   )
-                                ),
-                              ],
+                                );
+                              },
+                              child: Column(
+                                spacing: 8,
+                                children: [
+                                  Image.asset("assets/images/bg_test.jpg", width: 150,),
+                                  Text(
+                                    "Gratitude", 
+                                    style: TextStyle(
+                                      color: TextColor.secondary,
+                                      fontSize: 13,
+                                      fontFamily: "Nunito",
+                                      fontWeight: FontWeight.w800
+                                    )
+                                  ),
+                                ],
+                              ),
                             ),
                             InkWell(
                               onTap: (){
