@@ -7,9 +7,12 @@ import 'package:flutter_application_test/views/pages/assessment/mood/mood_select
 import 'package:flutter_application_test/views/pages/gratitudes/gratitude_home_page.dart';
 import 'package:flutter_application_test/views/pages/letters/letters_home_page.dart';
 import 'package:flutter_application_test/views/pages/settings/settings_page.dart';
+import 'package:flutter_application_test/views/widgets/Home/banner_carousel_widget.dart';
 import 'package:flutter_application_test/views/widgets/Home/daily_activity_widget.dart';
 import 'package:flutter_application_test/views/widgets/Home/daily_journal_home_widget.dart';
+import 'package:flutter_application_test/views/widgets/Journal/journal_list_display.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({
@@ -23,11 +26,61 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   List<Map<String, dynamic>> data = [];
+  List<Map<String, dynamic>> weekData = [];
 
   Map<String, dynamic> journalData = {};
 
   late DateTime startTime;
   late DateTime endTime;
+  final currentDate = DateTime.now();
+
+  handleGetWeek(){
+    DateTime startOfWeek = currentDate.subtract(Duration(days: currentDate.weekday - 1));
+
+    print('current date ${currentDate.day}');
+
+    List<Map<String, dynamic>> weekContainer = [];
+    String dayNameReplacement = '';
+
+    for(int i = 0; i < 7; i++){
+      DateTime day = startOfWeek.add(Duration(days: i));
+      String dayName = DateFormat('E').format(day).toLowerCase();
+
+      switch (dayName) {
+        case 'sun':
+          dayNameReplacement = 'Min';
+          break;
+        case 'mon':
+          dayNameReplacement = 'Sen';
+          break;
+        case 'tue':
+          dayNameReplacement = 'Sel';
+          break;
+        case 'wed':
+          dayNameReplacement = 'Rab';
+          break;
+        case 'thu':
+          dayNameReplacement = 'Kam';
+          break;
+        case 'fri':
+          dayNameReplacement = 'Jum';
+          break;
+        case 'sat':
+          dayNameReplacement = 'Sab';
+          break;
+        default: "";
+      }
+
+      weekContainer.add({
+        'date': day.day.toString(),
+        'dayName': dayNameReplacement
+      });
+    }
+
+    setState(() {
+      weekData = weekContainer;
+    });
+  }
 
   Future<void> fetchData(uid) async {
     // setState(() {
@@ -77,6 +130,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
     _initializeTime();
+    handleGetWeek();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final userData = ref.read(userDataProvider);
       if (userData.id.isNotEmpty) {
@@ -96,237 +150,239 @@ class _HomePageState extends ConsumerState<HomePage> {
       final user = ref.watch(userDataProvider);
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 24),
-            width: double.infinity,
-            child: Column(
-              spacing: 5,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.greenAccent,
-                        shape: BoxShape.circle,
+      body: Container(
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xffFFF5DC),
+              Color(0xffFCFCFC)
+            ]
+          )
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 24),
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.greenAccent,
+                          shape: BoxShape.circle,
+                        ),
+                        width: 50,
+                        height: 50,
                       ),
-                      width: 50,
-                      height: 50,
-                    ),
-                    const SizedBox(width: 10), // Spacing between widgets
-                    Expanded(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Halo, ${user.name ?? ''}',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins'
+                      const SizedBox(width: 10), // Spacing between widgets
+                      Expanded(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Halo, ${user.name ?? ''}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins'
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                'Bagaimana kabarmu hari ini?',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12,
-                                  fontFamily: 'Nunito'
+                                Text(
+                                  'Bagaimana kabarmu hari ini?',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                    fontFamily: 'Nunito'
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context, 
-                                MaterialPageRoute(
-                                  builder: (context) {
-                                    return SettingsPage();
-                                  }
-                                )
-                              );
-                            },
-                            icon: Icon(Icons.settings_outlined, size: 25, color: Colors.grey.shade700)
-                          )
-                        ],
+                              ],
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return SettingsPage();
+                                    }
+                                  )
+                                );
+                              },
+                              icon: Icon(Icons.settings_outlined, size: 25, color: Colors.grey.shade700)
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context, 
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return Moodselection();
-                        }
-                      )
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      gradient: GradientContainer.containerColor,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  Image.asset('assets/images/banner.png'),
+                  const SizedBox(height: 15),
+                  Row(
+                    spacing:12,
+                    children: List.generate(
+                      weekData.length,
+                      (index) => Container(
+                        padding: EdgeInsets.symmetric(vertical: 5, horizontal: 8),
+                        height: 65,
+                        decoration: BoxDecoration(
+                          color: currentDate.day.toString() == weekData[index]['date'] ? TextColor.primary : Colors.transparent,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Mood kamu hari ini',
+                                '${weekData[index]['date']}',
                                 style: TextStyle(
-                                  color: TextColor.primary,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 13
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: currentDate.day.toString() == weekData[index]['date'] ? Colors.white : TextColor.secondary,
                                 ),
                               ),
-                              SizedBox(height: 3,),
+                              const SizedBox(height: 4),
                               Text(
-                                'Beri rating pada mood kamu hari ini',
+                                weekData[index]['dayName'],
                                 style: TextStyle(
-                                  color: TextColor.secondary,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 12
+                                  fontSize: 14,
+                                  color: currentDate.day.toString() == weekData[index]['date'] ? Colors.white : TextColor.secondary,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // const SizedBox(height: 10),
-                // DailyJournalHomeWidget(),
-                const SizedBox(height: 10),
-                DailyActivityWidget(),
-                SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    spacing: 10,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.max,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Jelajahi Program',
-                        style: TextStyle(
-                          color: TextColor.primary,
-                          fontFamily: 'Poppins',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600
-                        ),
                       ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: 15,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context, 
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return JournalHomePage();
-                                    }
-                                  )
-                                );
-                              },
-                              child: Column(
-                                spacing: 8,
-                                children: [
-                                  Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                  Text(
-                                    "Journaling", 
-                                    style: TextStyle(
-                                      color: TextColor.secondary,
-                                      fontSize: 13,
-                                      fontFamily: "Nunito",
-                                      fontWeight: FontWeight.w800
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ),
-                            InkWell(
-                              onTap: (){
-                                Navigator.push(
-                                  context, 
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return GratitudeHomePage();
-                                    }
-                                  )
-                                );
-                              },
-                              child: Column(
-                                spacing: 8,
-                                children: [
-                                  Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                  Text(
-                                    "Gratitude", 
-                                    style: TextStyle(
-                                      color: TextColor.secondary,
-                                      fontSize: 13,
-                                      fontFamily: "Nunito",
-                                      fontWeight: FontWeight.w800
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ),
-                            InkWell(
-                              onTap: (){
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) {
-                                      return LettersHomePage();
-                                    })
-                               );
-                              },
-                              child: Column(
-                                spacing: 8,
-                                children: [
-                                  Image.asset("assets/images/bg_test.jpg", width: 150,),
-                                  Text(
-                                    "Letters", 
-                                    style: TextStyle(
-                                      color: TextColor.secondary,
-                                      fontSize: 13,
-                                      fontFamily: "Nunito",
-                                      fontWeight: FontWeight.w800
-                                    )
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                )
-              ],
+                      ),
+                    ),
+                  SizedBox(height: 15,),
+                  JournalListDisplay(),
+                  SizedBox(height: 15,),
+                  BannerCarouselWidget()
+                  // Container(
+                  //   width: double.infinity,
+                  //   child: BannerCarouselWidget(),
+                  // )
+                  // SizedBox(
+                  //   width: double.infinity,
+                  //   child: Column(
+                  //     spacing: 10,
+                  //     mainAxisAlignment: MainAxisAlignment.start,
+                  //     mainAxisSize: MainAxisSize.max,
+                  //     crossAxisAlignment: CrossAxisAlignment.start,
+                  //     children: [
+                  //       Text(
+                  //         'Jelajahi Program',
+                  //         style: TextStyle(
+                  //           color: TextColor.primary,
+                  //           fontFamily: 'Poppins',
+                  //           fontSize: 14,
+                  //           fontWeight: FontWeight.w600
+                  //         ),
+                  //       ),
+                  //       SingleChildScrollView(
+                  //         scrollDirection: Axis.horizontal,
+                  //         child: Row(
+                  //           mainAxisSize: MainAxisSize.min,
+                  //           spacing: 15,
+                  //           children: [
+                  //             InkWell(
+                  //               onTap: () {
+                  //                 Navigator.push(
+                  //                   context, 
+                  //                   MaterialPageRoute(
+                  //                     builder: (context) {
+                  //                       return JournalHomePage();
+                  //                     }
+                  //                   )
+                  //                 );
+                  //               },
+                  //               child: Column(
+                  //                 spacing: 8,
+                  //                 children: [
+                  //                   Image.asset("assets/images/bg_test.jpg", width: 150,),
+                  //                   Text(
+                  //                     "Journaling", 
+                  //                     style: TextStyle(
+                  //                       color: TextColor.secondary,
+                  //                       fontSize: 13,
+                  //                       fontFamily: "Nunito",
+                  //                       fontWeight: FontWeight.w800
+                  //                     )
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //             InkWell(
+                  //               onTap: (){
+                  //                 Navigator.push(
+                  //                   context, 
+                  //                   MaterialPageRoute(
+                  //                     builder: (context) {
+                  //                       return GratitudeHomePage();
+                  //                     }
+                  //                   )
+                  //                 );
+                  //               },
+                  //               child: Column(
+                  //                 spacing: 8,
+                  //                 children: [
+                  //                   Image.asset("assets/images/bg_test.jpg", width: 150,),
+                  //                   Text(
+                  //                     "Gratitude", 
+                  //                     style: TextStyle(
+                  //                       color: TextColor.secondary,
+                  //                       fontSize: 13,
+                  //                       fontFamily: "Nunito",
+                  //                       fontWeight: FontWeight.w800
+                  //                     )
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //             InkWell(
+                  //               onTap: (){
+                  //                 Navigator.push(
+                  //                   context,
+                  //                   MaterialPageRoute(
+                  //                     builder: (context) {
+                  //                       return LettersHomePage();
+                  //                     })
+                  //                );
+                  //               },
+                  //               child: Column(
+                  //                 spacing: 8,
+                  //                 children: [
+                  //                   Image.asset("assets/images/bg_test.jpg", width: 150,),
+                  //                   Text(
+                  //                     "Letters", 
+                  //                     style: TextStyle(
+                  //                       color: TextColor.secondary,
+                  //                       fontSize: 13,
+                  //                       fontFamily: "Nunito",
+                  //                       fontWeight: FontWeight.w800
+                  //                     )
+                  //                   ),
+                  //                 ],
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       )
+                  //     ],
+                  //   ),
+                  // )
+                ],
+              ),
             ),
           ),
         ),

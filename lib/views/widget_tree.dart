@@ -39,9 +39,24 @@ class WidgetTree extends ConsumerWidget {
             body: ValueListenableBuilder(
               valueListenable: selectedPageNotifier, 
               builder: (context, selectedPage, child) {
-                return pages.elementAt(selectedPage);
+                // return pages.elementAt(selectedPage);
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xffFFF5DC),
+                        Color(0xffFCFCFC)
+                      ]
+                    )
+                  ),
+                  child: pages.elementAt(selectedPage),
+                );
               },
             ),
+            // bottomNavigationBar: NavigationBar(
+            //   destinations: destinations),
           );
         } else {
           // Not authenticated, show login page

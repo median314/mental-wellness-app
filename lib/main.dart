@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_test/data/notifiers.dart';
+import 'package:flutter_application_test/views/pages/home_page.dart';
 import 'package:flutter_application_test/views/widget_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,12 +32,14 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           debugShowMaterialGrid: false,
           theme: ThemeData(
+            scaffoldBackgroundColor: Colors.transparent,
             colorScheme: ColorScheme.fromSeed(
                 seedColor: Colors.amber, 
                 brightness: isDarkMode.value ? Brightness.dark : Brightness.light
             )
           ),
-          home: WidgetTree()
+          // home: WidgetTree()
+          home: HomePage()
         );
       },
     );
